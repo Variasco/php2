@@ -54,7 +54,7 @@ class Warrior extends DefaultUnit
 
     public function ultimate(DefaultUnit $target)
     {
-        $target->hits -= ($this->agility + $this->strength) * 2;
+        $target->hits -= ($this->agility + $this->strength) * 3;
         $this->fatigue -= 20;
         $this->will -= 60;
         echo "{$this->name} наносит сокрушающий удар по цели {$target->name}. Урон:" . ($this->agility + $this->strength) * 3 . "<br>";
