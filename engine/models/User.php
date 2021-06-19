@@ -6,8 +6,9 @@ class User extends Model
 {
     public $id;
     public $login;
-    public $pass;
-    public $hash;
+    public $hash_pass;
+    public $is_admin;
+    public $hash_cookie;
 
     public function getTableName()
     {

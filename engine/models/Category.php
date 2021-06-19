@@ -4,14 +4,14 @@
 namespace app\models;
 
 
-class Gallery extends Model
+class Category extends Model
 {
     public $id;
     public $name;
-    public $views;
+
 
     protected function getTableName()
     {
-        return 'gallery';
+        return 'category';
     }
 }
