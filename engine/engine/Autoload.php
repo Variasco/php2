@@ -7,7 +7,6 @@ class Autoload
     {
         $fileName = str_replace(["app\\", "\\"], ["../", "/"], $className) . ".php";
         if (file_exists($fileName)) {
-            var_dump($fileName);
             include $fileName;
         }
     }

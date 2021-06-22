@@ -1,72 +1,22 @@
 <?php
 
-use app\models\{Catalog, User, Order, Gallery, Cart};
-use app\models\example\{Product, Piece, Digital, Weight};
-use app\engine\Db;
+use app\models\{Product, User, Order, Cart, Category};
 
+include "../config/config.php";
 include "../engine/Autoload.php";
 
 spl_autoload_register([new Autoload(), 'loadClass']);
 
-$good1 = new Piece(2, 150);
-$good2 = new Digital(3, 100);
-$good3 = new Weight(4, 20);
+//Задание 4
+$product = (new Product("Пицца","Описание", 125))->insert();
+//$product->delete(); //Можно прокинуть id любой записи в таблице, сделал для своего удобства.
 
-$good1->calcPrice();
-$good2->calcPrice();
-$good3->calcPrice();
-
-echo $good1->total . "<br>";
-echo $good2->total . "<br>";
-echo $good3->total . "<br>";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-die();
-/*
-//CREATE
-$product = new Product();
-$product->name = 'Чай';
-$product->price = 23;
-$product->insert();
-
-//READ
-$product = new Product();
-$product->getOne(5);
-$product->getAll();
-
-//UPDATE
-$product = new Product();
-$product->getOne(5);
-$product->price = 25;
+$product = (new Product())->getOneAsClass(1);
+$product->price = 130; //было 125
+$product->description = 'someText';
 $product->update();
 
-//DELETE
-$product = new Product();
-$product->getOne(5);
-$product->delete();
-*/
+//Задание 5
+var_dump((new Product())->getOneAsObject(1));
+//или
+var_dump((new Product())->getOneAsClass(1));
