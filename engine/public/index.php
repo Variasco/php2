@@ -7,16 +7,19 @@ include "../engine/Autoload.php";
 
 spl_autoload_register([new Autoload(), 'loadClass']);
 
-//Задание 4
-$product = (new Product("Пицца","Описание", 125))->insert();
-//$product->delete(); //Можно прокинуть id любой записи в таблице, сделал для своего удобства.
+$controllerName = $_GET['c'] ?? 'index';
+$actionName = $_GET['a'] ?? 'index';
 
-$product = (new Product())->getOneAsClass(1);
-$product->price = 130; //было 125
-$product->description = 'someText';
-$product->update();
+$controllerClass = CONTROLLER_NAMESPACE . ucfirst($controllerName) . "Controller";
 
-//Задание 5
-var_dump((new Product())->getOneAsObject(1));
-//или
-var_dump((new Product())->getOneAsClass(1));
+if (class_exists($controllerClass)) {
+    $controller = new $controllerClass();
+    $controller->runAction($actionName);
+} else {
+    echo "404";
+}
+
+if ($_GET['page'] ?? false) {
+    $str = 'we are happy';
+    echo json_encode($str);
+}
