@@ -14,10 +14,15 @@ abstract class Model implements IModel
         } else {
             die("Ошибка. Затронуто несуществующее поле.");
         }
+        return $this;
     }
 
     public function __get($name)
     {
-        return $this->$name;
+        if (array_key_exists($name, $this->props)) {
+            return $this->props[$name]['value'];
+        } else {
+            die("Ошибка. Затронуто несуществующее поле.");
+        }
     }
 }
