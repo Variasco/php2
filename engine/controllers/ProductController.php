@@ -7,12 +7,12 @@ use app\models\Product;
 class ProductController extends MainController
 {
     protected function actionIndex() {
-        $catalog = (new Product)->getAll();
-        $page = $_GET['page'] ?? 0;
+        $page = $_GET['page'] ?? QUANTITY;
+        $catalog = (new Product)->getLimit();
 
         echo $this->render('catalog', [
             'catalog' => $catalog,
-            'page' => ++$page
+            'page' => $page
         ]);
     }
 

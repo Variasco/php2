@@ -19,7 +19,38 @@ if (class_exists($controllerClass)) {
     echo "404";
 }
 
-if ($_GET['page'] ?? false) {
-    $str = 'we are happy';
-    echo json_encode($str);
-}
+//Примеры CRUD:
+//INSERT
+//$user = (new User("vari", "123"));
+//var_dump($user);
+//$user->save();
+
+//UPDATE
+//$user = (new User)->getOneAsObject(1);
+//var_dump($user);
+//$user->login = "adminchik";
+//$user->save();
+//var_dump($user);
+
+
+
+//CRUD реализованный функционал:
+
+//INSERT
+//$object = (new 'Model'(...props));
+//$object->save();
+
+//SELECT
+//$assocArray = (new 'Model')->getAll();
+//$assocArray = (new 'Model')->getLimit($from); //константа QUANTITY отвечает за количество элементов в выводе
+//$assocArray = (new 'Model')->getOne($id);
+//$object = (new 'Model')->getOneAsObject($id)
+
+//UPDATE
+//$object = (new 'Model')->getOneAsObject($id);
+//$object->property = 'value';
+//$object->save();
+
+//DELETE
+//$object = (new 'Model')->getOneAsObject($id);
+//$object->delete();

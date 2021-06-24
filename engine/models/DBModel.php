@@ -20,14 +20,21 @@ abstract class DBModel extends Model
     public function getOneAsObject($id)
     {
         $sql = "SELECT * FROM {$this->getTableName()} WHERE id = :id";
-        return DB::getInstance()->queryOneObject($sql, ['id' => $id]);
+        $array = DB::getInstance()->queryOne($sql, ['id' => $id]);
+        $class = get_called_class();
+        $obj = new $class;
+        foreach ($array as $key => $value) {
+            $obj->props["{$key}"]['value'] = $value;
+            $obj->props["{$key}"]['updated'] = false;
+        }
+        return $obj;
     }
 
-    public function getOneAsClass($id)
-    {
-        $sql = "SELECT * FROM {$this->getTableName()} WHERE id = :id";
-        return DB::getInstance()->queryOneClass($sql, ['id' => $id], get_called_class());
-    }
+//    public function getOneAsClass($id)
+//    {
+//        $sql = "SELECT * FROM {$this->getTableName()} WHERE id = :id";
+//        return DB::getInstance()->queryOneClass($sql, ['id' => $id], get_called_class());
+//    }
 
     public function getAll()
     {
@@ -35,74 +42,84 @@ abstract class DBModel extends Model
         return DB::getInstance()->queryAll($sql);
     }
 
-    public function insert()
+    public function getLimit($page = 0)
+    {
+        $params = [
+            'from' => $page,
+            'quantity' => QUANTITY,
+        ];
+        $tableName = $this->getTableName();
+        $sql = "SELECT * FROM `{$tableName}`  LIMIT :from, :quantity";
+        //SELECT * FROM `product` LIMIT 2, 2
+        return DB::getInstance()->queryLimit($sql, $params);
+    }
+
+    protected function insert()
     {
         $fields = null;
         $values = null;
         $params = null;
-        foreach ($this as $key => $value) {
-            if ($value == null) continue;
-            $fields .= "`{$key}`,";
-            $values .= ":{$key},";
-            $params[$key] = $value;
+        $tableName = $this->getTableName();
+        foreach ($this->props as $key => $value) {
+            if (is_null($value['value'])) continue;
+            $params[$key] = $value['value'];
+            $fields .= "`{$key}`, ";
+            $values .= ":{$key}, ";
         }
-        $fields = substr($fields, 0, -1);
-        $values = substr($values, 0, -1);
+        var_dump($params);
 
-        $sql = "INSERT INTO `{$this->getTableName()}` ({$fields}) VALUES ({$values})";
+        $fields = substr($fields, 0, -2);
+        $values = substr($values, 0, -2);
 
-        $this->rowsAffected = DB::getInstance()->execute($sql, $params);
-        $this->id = DB::getInstance()->lastInsertId();
+        $sql = "INSERT INTO `{$tableName}` ({$fields}) VALUES ({$values})";
+        var_dump($sql);
 
-        var_dump("Запись добавлена. Количество затронутых строк: {$this->rowsAffected}");
+        $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
+        $this->props['id']['value'] = DB::getInstance()->lastInsertId();
+
+        echo "Запись добавлена. Количество затронутых строк: {$this->rowsAffected}";
         $this->rowsAffected = 0;
         return $this;
     }
 
-    public function update()
+    protected function update()
     {
-        $params = null;
-        $id = $this->id;
-        $obj = $this->getOneAsClass($id);
-        //Не самый быстрый вариант, но пока работает
-        foreach ($this as $key1 => $value1) {
-            foreach ($obj as $key2 => $value2) {
-                if ($key1 == $key2 && $value1 != $value2) {
-                    $params[$key1] = $value1;
-                }
-            }
+        $params["id"] = $this->props['id']['value'];
+        $tableName = $this->getTableName();
+        $sql = "UPDATE `{$tableName}` SET ";
+        foreach ($this->props as $key => $value) {
+            if (!$value['updated']) continue;
+            $params["{$key}"] = $value['value'];
+            $sql .= "`{$key}` = :{$key}, ";
         }
-        if (!is_null($params)) {
-            $sql = "UPDATE `{$this->getTableName()}` SET ";
-            foreach ($params as $key => $value) {
-                $sql .= "`{$key}` = :{$key}, ";
-            }
-            $sql = substr($sql, 0, -2);
-            $sql .= " WHERE `id` = :id";
-            $params[':id'] = $id;
-            $this->rowsAffected = DB::getInstance()->execute($sql, $params);
-        }
-        var_dump("Запись изменена. Количество затронутых строк: {$this->rowsAffected}");
+        $sql = substr($sql, 0, -2);
+        $sql .= " WHERE `id` = :id";
+        var_dump($params, $sql);
+
+        $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
+
+        echo "Запись изменена. Количество затронутых строк: {$this->rowsAffected}";
         $this->rowsAffected = 0;
         return $this;
     }
 
-    public function delete($id = null)
+    public function delete()
     {
-        if (is_null($id)) {
-            $id = $this->id;
-        }
-        $sql = "DELETE FROM `{$this->getTableName()}` WHERE `id` = {$id}";
-        $this->rowsAffected = DB::getInstance()->execute($sql);
+        $params['id'] = $this->props['id']['value'];
+        $tableName = $this->getTableName();
+        $sql = "DELETE FROM `{$tableName}` WHERE `id` = :id";
+        var_dump($sql);
 
-        var_dump("Запись удалена. Количество затронутых строк: {$this->rowsAffected}");
+        $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
+
+        echo "Запись удалена. Количество затронутых строк: {$this->rowsAffected}";
         $this->rowsAffected = 0;
         return $this;
     }
 
     public function save()
     {
-        if (is_null($this->id)) {
+        if (is_null($this->props['id']['value'])) {
             return $this->insert();
         } else {
             return $this->update();

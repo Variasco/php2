@@ -22,11 +22,12 @@ function sendRequest(method, url, body = undefined) {
 
 const moreButton = document.querySelector('#more');
 moreButton.addEventListener('click', (event) => {
-    let url = event.target.attributes.href;
+    let url = event.target.attributes.href.value;
     let method = 'GET';
     sendRequest(method, url)
         .then((res) => {
-            // console.log(res);
-            console.log(this);
+            let catalog = document.querySelector('.catalog');
+            catalog.innerHTML += res[0];
+            moreButton.setAttribute('href', '/?c=api&page=' + res[1]);
         });
 });
