@@ -4,7 +4,7 @@
 namespace app\models;
 
 
-class Order extends Model
+class Order extends DBModel
 {
     public $id;
     public $name;

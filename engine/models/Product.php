@@ -4,20 +4,47 @@
 namespace app\models;
 
 
-class Product extends Model
+class Product extends DBModel
 {
-    public $id;
-    public $name;
-    public $price;
-    public $description;
-    public $picture;
-    public $category_id;
+//    protected $id;
+//    public $name;
+//    public $price;
+//    public $description;
+//    public $picture;
+//    protected $category_id;
+
+    public $props = [
+        'id' => [
+            'updated' => false,
+            'value' => null
+        ],
+        'name' => [
+            'updated' => false,
+            'value' => null
+        ],
+        'price' => [
+            'updated' => false,
+            'value' => null
+        ],
+        'description' => [
+            'updated' => false,
+            'value' => null
+        ],
+        'picture' => [
+            'updated' => false,
+            'value' => null
+        ],
+        'category_id' => [
+            'updated' => false,
+            'value' => null
+        ],
+    ];
 
     public function __construct($name = null, $description = null, $price = null)
     {
-        $this->name = $name;
-        $this->price = $price;
-        $this->description = $description;
+        $this->props['name']['value'] = $name;
+        $this->props['price']['value'] = $price;
+        $this->props['description']['value'] = $description;
     }
 
     protected function getTableName()
