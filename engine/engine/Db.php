@@ -59,7 +59,7 @@ class Db
             $stmt->bindValue(":{$key}", $value, \PDO::PARAM_INT);
         }
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
 //    public function queryOneObject($sql, $params)
@@ -67,12 +67,12 @@ class Db
 //        return $this->query($sql, $params)->fetch(\PDO::FETCH_OBJ);
 //    }
 
-//    public function queryOneClass($sql, $params, $className)
-//    {
-//        $stmt = $this->query($sql, $params);
-//        $stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $className);
-//        return $stmt->fetch();
-//    }
+    public function queryOneClass($sql, $params, $className)
+    {
+        $stmt = $this->query($sql, $params);
+        $stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $className);
+        return $stmt;
+    }
 
     public function queryOne($sql, $params = [])
     {

@@ -13,32 +13,40 @@ abstract class DBModel extends Model
 
     public function getOne($id)
     {
-        $sql = "SELECT * FROM {$this->getTableName()} WHERE id = :id";
+        $tableName = $this->getTableName();
+        $sql = "SELECT * FROM {$tableName} WHERE id = :id";
         return DB::getInstance()->queryOne($sql, ['id' => $id]);
     }
 
     public function getOneAsObject($id)
     {
-        $sql = "SELECT * FROM {$this->getTableName()} WHERE id = :id";
-        $array = DB::getInstance()->queryOne($sql, ['id' => $id]);
+        $tableName = $this->getTableName();
+        $sql = "SELECT * FROM {$tableName} WHERE id = :id";
         $class = get_called_class();
+        // $obj2 = DB::getInstance()->queryOneClass($sql, ['id' => $id] ,$class);
+        // Если сделать так, и заполнить объект через магический set, то всем полям 'updated' выставится true
+        $array = DB::getInstance()->queryOne($sql, ['id' => $id]);
+
         $obj = new $class;
         foreach ($array as $key => $value) {
             $obj->props["{$key}"]['value'] = $value;
             $obj->props["{$key}"]['updated'] = false;
         }
+
         return $obj;
     }
 
-//    public function getOneAsClass($id)
-//    {
-//        $sql = "SELECT * FROM {$this->getTableName()} WHERE id = :id";
-//        return DB::getInstance()->queryOneClass($sql, ['id' => $id], get_called_class());
-//    }
+    public function getOneAsClass($id)
+    {
+        $tableName = $this->getTableName();
+        $sql = "SELECT * FROM {$tableName} WHERE id = :id";
+        return DB::getInstance()->queryOneClass($sql, ['id' => $id], get_called_class());
+    }
 
     public function getAll()
     {
-        $sql = "SELECT * FROM {$this->getTableName()}";
+        $tableName = $this->getTableName();
+        $sql = "SELECT * FROM {$tableName}";
         return DB::getInstance()->queryAll($sql);
     }
 
@@ -50,8 +58,17 @@ abstract class DBModel extends Model
         ];
         $tableName = $this->getTableName();
         $sql = "SELECT * FROM `{$tableName}`  LIMIT :from, :quantity";
-        //SELECT * FROM `product` LIMIT 2, 2
         return DB::getInstance()->queryLimit($sql, $params);
+    }
+
+    public function getWhere($field, $value)
+    {
+        $params = [
+            $field => $value,
+        ];
+        $tableName = $this->getTableName();
+        $sql = "SELECT * FROM `{$tableName}` WHERE `{$field}` = :{$field}";
+        return DB::getInstance()->queryOne($sql, $params);
     }
 
     protected function insert()
@@ -66,13 +83,11 @@ abstract class DBModel extends Model
             $fields .= "`{$key}`, ";
             $values .= ":{$key}, ";
         }
-        var_dump($params);
 
         $fields = substr($fields, 0, -2);
         $values = substr($values, 0, -2);
 
         $sql = "INSERT INTO `{$tableName}` ({$fields}) VALUES ({$values})";
-        var_dump($sql);
 
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
         $this->props['id']['value'] = DB::getInstance()->lastInsertId();
@@ -94,11 +109,10 @@ abstract class DBModel extends Model
         }
         $sql = substr($sql, 0, -2);
         $sql .= " WHERE `id` = :id";
-        var_dump($params, $sql);
 
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
 
-        echo "Запись изменена. Количество затронутых строк: {$this->rowsAffected}";
+//        echo "Запись изменена. Количество затронутых строк: {$this->rowsAffected}";
         $this->rowsAffected = 0;
         return $this;
     }
@@ -108,7 +122,6 @@ abstract class DBModel extends Model
         $params['id'] = $this->props['id']['value'];
         $tableName = $this->getTableName();
         $sql = "DELETE FROM `{$tableName}` WHERE `id` = :id";
-        var_dump($sql);
 
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
 
