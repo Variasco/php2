@@ -1,17 +1,16 @@
-{{ if (isAuth) }}
-    Привет, <?= $userName ?> <a href="/?c=auth&a=logout">Выйти</a>
-{{ else }}
+{% if isAuth %}
+    Привет, {{ userName }} <a href="/?c=auth&a=logout">Выйти</a>
+{% else %}
     <form action="/?c=auth&a=login" method="post">
         <input type="text" name="login" placeholder="login">
         <input type="password" name="pass" placeholder="password">
         <span>Save</span><input type="checkbox" name="save">
         <button type="submit" name="submit">Войти</button>
     </form>
-{{ endif }}<br>
+{% endif %}<br>
 <a href="/">Главная</a>
 <a href="/?c=product">Каталог</a>
 <a href="/?c=cart">Корзина</a>
-{{ if (isAdmin) }}
+{% if isAdmin %}
     <a href="/?c=admin">Админка</a>
-{{ endif }}
-<br>
+{% endif %}<br>

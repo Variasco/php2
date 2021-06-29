@@ -18,7 +18,7 @@ class Render implements IRender
             include $templatePath;
             return ob_get_clean();
         } else {
-            die('Шаблона не существует');
+            die('Шаблон не существует');
         }
     }
 }

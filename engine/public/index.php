@@ -16,15 +16,11 @@ $actionName = $_GET['a'] ?? 'index';
 $controllerClass = CONTROLLER_NAMESPACE . ucfirst($controllerName) . "Controller";
 
 if (class_exists($controllerClass)) {
-    $controller = new $controllerClass(new Render());
+    $controller = new $controllerClass(new TwigRender());
     $controller->runAction($actionName);
 } else {
-    echo "404";
+    echo "Контроллер не существует";
 }
-
-
-
-//TODO Сделать twig-шаблоны страниц
 
 
 //CRUD реализованный функционал:
