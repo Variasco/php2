@@ -1,9 +1,12 @@
 <?php
+session_start();
 
+use app\engine\{Render, TwigRender};
 use app\models\{Product, User, Order, Cart, Category};
 
 include "../config/config.php";
 include "../engine/Autoload.php";
+include '../vendor/autoload.php';
 
 spl_autoload_register([new Autoload(), 'loadClass']);
 
@@ -13,25 +16,11 @@ $actionName = $_GET['a'] ?? 'index';
 $controllerClass = CONTROLLER_NAMESPACE . ucfirst($controllerName) . "Controller";
 
 if (class_exists($controllerClass)) {
-    $controller = new $controllerClass();
+    $controller = new $controllerClass(new TwigRender());
     $controller->runAction($actionName);
 } else {
-    echo "404";
+    echo "Контроллер не существует";
 }
-
-//Примеры CRUD:
-//INSERT
-//$user = (new User("vari", "123"));
-//var_dump($user);
-//$user->save();
-
-//UPDATE
-//$user = (new User)->getOneAsObject(1);
-//var_dump($user);
-//$user->login = "adminchik";
-//$user->save();
-//var_dump($user);
-
 
 
 //CRUD реализованный функционал:
@@ -44,7 +33,7 @@ if (class_exists($controllerClass)) {
 //$assocArray = (new 'Model')->getAll();
 //$assocArray = (new 'Model')->getLimit($from); //константа QUANTITY отвечает за количество элементов в выводе
 //$assocArray = (new 'Model')->getOne($id);
-//$object = (new 'Model')->getOneAsObject($id)
+//$object = (new 'Model')->getOneAsObject($id);
 
 //UPDATE
 //$object = (new 'Model')->getOneAsObject($id);

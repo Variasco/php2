@@ -6,14 +6,7 @@ namespace app\models;
 
 class Product extends DBModel
 {
-//    protected $id;
-//    public $name;
-//    public $price;
-//    public $description;
-//    public $picture;
-//    protected $category_id;
-
-    public $props = [
+    protected $props = [
         'id' => [
             'updated' => false,
             'value' => null
@@ -40,11 +33,13 @@ class Product extends DBModel
         ],
     ];
 
-    public function __construct($name = null, $description = null, $price = null)
+    public function __construct($name = null, $description = null, $price = null, $picture = null, $category_id = null)
     {
         $this->props['name']['value'] = $name;
         $this->props['price']['value'] = $price;
         $this->props['description']['value'] = $description;
+        $this->props['picture']['value'] = $picture;
+        $this->props['category_id']['value'] = $category_id;
     }
 
     protected function getTableName()

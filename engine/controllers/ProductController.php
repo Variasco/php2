@@ -12,7 +12,8 @@ class ProductController extends MainController
 
         echo $this->render('catalog', [
             'catalog' => $catalog,
-            'page' => $page
+            'page' => $page,
+            'uniqid' => uniqid()
         ]);
     }
 

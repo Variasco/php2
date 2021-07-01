@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Июн 19 2021 г., 18:45
+-- Время создания: Июн 29 2021 г., 18:50
 -- Версия сервера: 8.0.19
 -- Версия PHP: 8.0.1
 
@@ -45,6 +45,13 @@ CREATE TABLE `category` (
   `name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Дамп данных таблицы `category`
+--
+
+INSERT INTO `category` (`id`, `name`) VALUES
+(1, 'Видеокарты');
+
 -- --------------------------------------------------------
 
 --
@@ -80,7 +87,12 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `price`, `description`, `picture`, `category_id`) VALUES
-(1, 'Пицца', '125.00', 'Описание', 'question-mark.png', NULL);
+(1, 'Palit GeForce GTX 1050 Ti STORMX', '19799.00', 'PCI-E 3.0, 4 ГБ GDDR5, 128 бит, 1290 МГц - 1392 МГц, HDMI, DisplayPort, DVI-D', 'Palit_1050ti.jpg', 1),
+(2, 'GIGABYTE GeForce GTX 1650 D6 OC', '26999.00', 'PCI-E 3.0, 4 ГБ GDDR6, 128 бит, 1410 МГц - 1635 МГц, DVI-D, DisplayPort, HDMI', 'GIGABYTE_GTX_1650.jpg', 1),
+(3, 'ASRock AMD Radeon RX 5500 XT Challenger D OC', '56999.00', 'PCI-E 4.0, 8 ГБ GDDR6, 128 бит, 1685 МГц - 1845 МГц, DisplayPort (3 шт), HDMI', 'ASRock_RX_5500XT.jpg', 1),
+(4, 'Palit GeForce RTX 2060 Dual', '58999.00', 'PCI-E 3.0, 6 ГБ GDDR6, 192 бит, 1365 МГц - 1680 МГц, DVI-D, DisplayPort, HDMI', 'Palit_RTX_2060.jpg', 1),
+(5, 'GIGABYTE GeForce RTX 3060 GAMING OC (LHR)', '75999.00', 'PCI-E 4.0, 12 ГБ GDDR6, 192 бит, 1320 МГц, DisplayPort (2 шт), HDMI (2 шт)', 'GIGABYTE_RTX_3060.jpg', 1),
+(6, 'GIGABYTE AORUS GeForce RTX 3070 MASTER', '121999.00', 'PCI-E 4.0, 8 ГБ GDDR6, 256 бит, 1500 МГц - 1845 МГц, DisplayPort (3 шт), HDMI (3 шт)', 'GIGABYTE_RTX_3070.jpg', 1);
 
 -- --------------------------------------------------------
 
@@ -95,6 +107,13 @@ CREATE TABLE `users` (
   `is_admin` tinyint(1) NOT NULL DEFAULT '0',
   `hash_cookie` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `users`
+--
+
+INSERT INTO `users` (`id`, `login`, `hash_pass`, `is_admin`, `hash_cookie`) VALUES
+(1, 'admin', '$2y$10$11xacmJ4Gz1c0D172YH2cuLhPDVmxN4H/QDbe1E0kl4aSEJrY2ue.', 1, '139120029660da5d44e7fa26.94293867');
 
 --
 -- Индексы сохранённых таблиц
@@ -153,7 +172,7 @@ ALTER TABLE `cart`
 -- AUTO_INCREMENT для таблицы `category`
 --
 ALTER TABLE `category`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT для таблицы `orders`
@@ -165,13 +184,13 @@ ALTER TABLE `orders`
 -- AUTO_INCREMENT для таблицы `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
