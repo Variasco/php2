@@ -14,6 +14,12 @@ function deleteFromCartHandler(e) {
                 const total = document.querySelector('#total');
                 counter.innerText = res.count;
                 total.innerText = res.total;
+
+                if (res.count === '0') {
+                    const pTotal = document.querySelector('.total');
+                    pTotal.parentNode.removeChild(pTotal);
+                    cart.append(document.createElement('p').innerText = 'Корзина пуста');
+                }
             })
             .catch((err) => {
                 console.error("Ошибка!" + err);

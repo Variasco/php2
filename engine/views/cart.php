@@ -9,10 +9,10 @@
                 <button class="delete" data-id="<?= $good['cart_id'] ?>">Удалить</button>
             </div>
         <?php endforeach; ?>
-        <p>Итого: <span id="total"><?= $total ?></span> &#8381;</p>
+        <p class="total">Итого: <span id="total"><?= $total ?></span> &#8381;</p>
     <?php else: ?>
         <p>Корзина пуста</p>
     <?php endif; ?>
 </section>
 
-<script defer src="js/deleteFromCart.js"></script>
+<script defer src="js/deleteFromCart.js?<?= uniqid(); ?>"></script>

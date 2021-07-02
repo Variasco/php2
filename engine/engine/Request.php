@@ -10,6 +10,8 @@ class Request
     private $controllerName;
     private $actionName;
     private $params = [];
+    private $cookie = [];
+
     private $method;
 
     public function __construct()
@@ -35,6 +37,8 @@ class Request
                 $this->params[$key] = $value;
             }
         }
+
+        $this->cookie = $_COOKIE;
     }
 
     /**
@@ -67,5 +71,13 @@ class Request
     public function getMethod()
     {
         return $this->method;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCookie(): array
+    {
+        return $this->cookie;
     }
 }

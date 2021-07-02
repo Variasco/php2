@@ -5,19 +5,11 @@ namespace app\controllers;
 
 
 use app\engine\Request;
+use app\engine\Session;
 use app\models\{Product, Cart};
 
 class ApiController extends MainController
 {
-    private $request;
-
-    private function getRequest() {
-        if (is_null($this->request)) {
-            $this->request = new Request();
-        }
-        return $this->request;
-    }
-
     protected function actionCatalog() {
         $request = $this->getRequest();
         if ($request->getParams()['page'] ?? false) {
@@ -36,7 +28,7 @@ class ApiController extends MainController
         $request = $this->getRequest();
         $body = $request->getParams() ?? null;
         if(!empty($body)) {
-            $session_id = session_id();
+            $session_id = $this->getSession()->getSessionId();
             (new Cart($body['id'], 1, $session_id))->save();
             $response['count'] = (new Cart())->getCountWhere('session_id', $session_id);
             echo json_encode($response);
@@ -51,7 +43,7 @@ class ApiController extends MainController
 
         if (!empty($body)) {
             $id = $body['id'];
-            $session_id = session_id();
+            $session_id = $this->getSession()->getSessionId();
             $cart = new Cart();
             $cart->getOneAsObject($id)->delete();
             $response['count'] = $cart->getCountWhere('session_id', $session_id);

@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-use app\engine\{Render, Request, TwigRender};
+use app\engine\{Render, Request, Session, TwigRender};
 use app\models\{Product, User, Order, Cart, Category};
 
 include "../config/config.php";
@@ -11,6 +11,7 @@ include '../vendor/autoload.php';
 spl_autoload_register([new Autoload(), 'loadClass']);
 
 $request = new Request;
+$session = new Session;
 
 $controllerName = $request->getControllerName() ?: 'index';
 $actionName = $request->getActionName() ?? 'index';

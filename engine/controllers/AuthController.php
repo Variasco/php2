@@ -11,14 +11,17 @@ class AuthController extends MainController
 {
     protected function actionLogin()
     {
-        $request = new Request();
-        $login = $request->getParams()['login'] ?? null;
-        $pass = $request->getParams()['pass'] ?? null;
-        if (User::auth($login, $pass)) {
-            if ($request->getParams()['save'] ?? false) {
+        $login = $this->getRequest()->getParams()['login'] ?? null;
+        $pass = $this->getRequest()->getParams()['pass'] ?? null;
+        $user = new User();
+        if ($user->auth($login, $pass)) {
+            if ($this->getRequest()->getParams()['save'] ?? false) {
                 $hash = uniqid(rand(), true);
-                User::setCookie($_SESSION['id'], $hash);
-                setcookie("hash", $hash, time() + 24 * 3600, "/");
+                $id = $this->getSession()->getParams()['id'] ?? null;
+                if (!is_null($id)) {
+                    $user->setCookie($id, $hash);
+                    setcookie("hash", $hash, time() + 24 * 3600, "/");
+                }
             }
             header("location: {$_SERVER['HTTP_REFERER']}");
             die();
