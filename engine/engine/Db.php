@@ -71,7 +71,7 @@ class Db
     {
         $stmt = $this->query($sql, $params);
         $stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $className);
-        return $stmt;
+        return $stmt->fetch();
     }
 
     public function queryOne($sql, $params = [])

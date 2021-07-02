@@ -5,6 +5,7 @@ namespace app\controllers;
 
 
 use app\interfaces\IRender;
+use app\models\Cart;
 use app\models\User;
 
 abstract class MainController
@@ -41,7 +42,8 @@ abstract class MainController
                 'menu' => $this->renderTemplate('menu', [
                     'isAuth' => User::isAuth(),
                     'userName' => User::getUser(),
-                    'isAdmin' => User::isAdmin()
+                    'isAdmin' => User::isAdmin(),
+                    'count' => (new Cart())->getCountWhere('session_id', session_id())
                 ]),
                 'content' => $this->renderTemplate($template, $params)
             ]);
@@ -53,16 +55,4 @@ abstract class MainController
     protected function renderTemplate($template, $params = []) {
         return $this->render->renderTemplate($template, $params);
     }
-
-//    protected function renderTemplate($template, $params = []) {
-//        ob_start();
-//        extract($params);
-//        $templatePath = VIEWS_DIR . $template . '.php';
-//        if (file_exists($templatePath)) {
-//            include $templatePath;
-//            return ob_get_clean();
-//        } else {
-//            die('Шаблона не существует');
-//        }
-//    }
 }

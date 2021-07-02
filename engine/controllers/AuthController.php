@@ -4,16 +4,18 @@
 namespace app\controllers;
 
 
+use app\engine\Request;
 use app\models\User;
 
 class AuthController extends MainController
 {
     protected function actionLogin()
     {
-        $login = $_POST['login'] ?? null;
-        $pass = $_POST['pass'] ?? null;
+        $request = new Request();
+        $login = $request->getParams()['login'] ?? null;
+        $pass = $request->getParams()['pass'] ?? null;
         if (User::auth($login, $pass)) {
-            if (isset($_POST['save'])) {
+            if ($request->getParams()['save'] ?? false) {
                 $hash = uniqid(rand(), true);
                 User::setCookie($_SESSION['id'], $hash);
                 setcookie("hash", $hash, time() + 24 * 3600, "/");

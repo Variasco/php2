@@ -63,12 +63,16 @@ abstract class DBModel extends Model
 
     public function getWhere($field, $value)
     {
-        $params = [
-            $field => $value,
-        ];
         $tableName = $this->getTableName();
-        $sql = "SELECT * FROM `{$tableName}` WHERE `{$field}` = :{$field}";
-        return DB::getInstance()->queryOne($sql, $params);
+        $sql = "SELECT * FROM `{$tableName}` WHERE `{$field}` = :value";
+        return DB::getInstance()->queryOne($sql, ['value' => $value]);
+    }
+
+    public function getCountWhere($field, $value)
+    {
+        $tableName = $this->getTableName();
+        $sql = "SELECT count(id) count FROM `{$tableName}` WHERE `{$field}` = :value";
+        return Db::getInstance()->queryOne($sql, ['value' => $value])['count'];
     }
 
     protected function insert()
@@ -92,9 +96,8 @@ abstract class DBModel extends Model
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
         $this->props['id']['value'] = DB::getInstance()->lastInsertId();
 
-        echo "Запись добавлена. Количество затронутых строк: {$this->rowsAffected}";
-        $this->rowsAffected = 0;
-        return $this;
+//        echo "Запись добавлена. Количество затронутых строк: {$this->rowsAffected}";
+        return $this->rowsAffected;
     }
 
     protected function update()
@@ -113,8 +116,7 @@ abstract class DBModel extends Model
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
 
 //        echo "Запись изменена. Количество затронутых строк: {$this->rowsAffected}";
-        $this->rowsAffected = 0;
-        return $this;
+        return $this->rowsAffected;
     }
 
     public function delete()
@@ -125,9 +127,8 @@ abstract class DBModel extends Model
 
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
 
-        echo "Запись удалена. Количество затронутых строк: {$this->rowsAffected}";
-        $this->rowsAffected = 0;
-        return $this;
+//        echo "Запись удалена. Количество затронутых строк: {$this->rowsAffected}";
+        return $this->rowsAffected;
     }
 
     public function save()

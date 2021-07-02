@@ -8,12 +8,15 @@ use app\models\Product;
 
 class CartController extends MainController
 {
-    /** @var Cart $cart */
     protected function actionIndex() {
-        $cart = (new Cart)->getAll();
+        $session_id = session_id();
+        $cart = (new Cart);
+        $cartGoods = $cart->getCart($session_id);
+        $total = $cart->getTotalPrice($session_id);
 
         echo $this->render('cart', [
-            'cart' => $cart
+            'cart' => $cartGoods,
+            'total' => $total
         ]);
     }
 }
