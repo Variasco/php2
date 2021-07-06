@@ -10,7 +10,8 @@ use app\models\{Product, Cart};
 
 class ApiController extends MainController
 {
-    protected function actionCatalog() {
+    protected function actionCatalog()
+    {
         $request = $this->getRequest();
         if ($request->getParams()['page'] ?? false) {
             $page = $request->getParams()['page'];
@@ -24,20 +25,29 @@ class ApiController extends MainController
         }
     }
 
-    protected function actionAddToCart() {
+    protected function actionAddToCart()
+    {
         $request = $this->getRequest();
         $body = $request->getParams() ?? null;
-        if(!empty($body)) {
+        if (!empty($body)) {
             $session_id = $this->getSession()->getSessionId();
-            (new Cart($body['id'], 1, $session_id))->save();
-            $response['count'] = (new Cart())->getCountWhere('session_id', $session_id);
+            $cart = new Cart();
+            $item = $cart->getWhere(['product_id', 'session_id'], [$body['id'], $session_id]);
+            if ($item) {
+                $item->quantity += 1;
+                $item->save();
+            } else {
+                (new Cart($body['id'], 1, $session_id))->save();
+            }
+            $response['count'] = $cart->getCountWhere('session_id', $session_id);
             echo json_encode($response);
         } else {
             die('Пустое тело запроса');
         }
     }
 
-    protected function actionDeleteFromCart() {
+    protected function actionDeleteFromCart()
+    {
         $request = $this->getRequest();
         $body = $request->getParams() ?? null;
 
@@ -45,12 +55,24 @@ class ApiController extends MainController
             $id = $body['id'];
             $session_id = $this->getSession()->getSessionId();
             $cart = new Cart();
-            $cart->getOneAsObject($id)->delete();
+            $item = $cart->getOneAsObject($id);
+            if ($item->session_id == $session_id) {
+                $item->delete();
+            }
             $response['count'] = $cart->getCountWhere('session_id', $session_id);
             $response['total'] = $cart->getTotalPrice($session_id);
             echo json_encode($response);
         } else {
             die('Пустое тело запроса');
         }
+    }
+
+    protected function actionClearCart()
+    {
+        $session_id = $this->getSession()->getSessionId();
+        $cart = new Cart();
+        $cart->deleteWhere('session_id', $session_id);
+        $response['count'] = $cart->getCountWhere('session_id', $session_id);
+        echo json_encode($response);
     }
 }

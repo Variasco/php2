@@ -48,6 +48,11 @@ class Cart extends DBModel
         return Db::getInstance()->queryOne($sql, ['session_id' => $session_id])['total'];
     }
 
+    public function getQuantity($product_id, $session_id) {
+        $sql = "SELECT `quantity` FROM `cart` WHERE `product_id` = :product_id AND `session_id` = :session_id";
+        return Db::getInstance()->queryOne($sql, ['product_id' => $product_id, 'session_id' => $session_id]);
+    }
+
     protected function getTableName()
     {
         return 'cart';

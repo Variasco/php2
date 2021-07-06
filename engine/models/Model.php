@@ -11,14 +11,16 @@ abstract class Model implements IModel
     private $request;
     private $session;
 
-    protected function getRequest() {
+    protected function getRequest()
+    {
         if (is_null($this->request)) {
             $this->request = new Request();
         }
         return $this->request;
     }
 
-    protected function getSession() {
+    protected function getSession()
+    {
         if (is_null($this->session)) {
             $this->session = new Session();
         }

@@ -10,6 +10,7 @@
             </div>
         <?php endforeach; ?>
         <p class="total">Итого: <span id="total"><?= $total ?></span> &#8381;</p>
+        <button id="clear-cart">Очистить корзину</button>
     <?php else: ?>
         <p>Корзина пуста</p>
     <?php endif; ?>

@@ -76,7 +76,8 @@ class Db
 
     public function queryOne($sql, $params = [])
     {
-        return $this->query($sql, $params)->fetch(\PDO::FETCH_ASSOC);
+        $assoc = $this->query($sql, $params)->fetch(\PDO::FETCH_ASSOC);
+        return $assoc;
     }
 
     public function queryAll($sql, $params = [])

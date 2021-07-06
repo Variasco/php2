@@ -11,7 +11,6 @@ include '../vendor/autoload.php';
 spl_autoload_register([new Autoload(), 'loadClass']);
 
 $request = new Request;
-$session = new Session;
 
 $controllerName = $request->getControllerName() ?: 'index';
 $actionName = $request->getActionName() ?? 'index';
@@ -24,7 +23,3 @@ if (class_exists($controllerClass)) {
 } else {
     echo "Контроллер не существует";
 }
-
-// TODO Реализация класса Session
-// TODO Реализовать quantity в корзине
-// TODO Асинхронная очистка корзины

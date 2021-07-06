@@ -61,11 +61,37 @@ abstract class DBModel extends Model
         return DB::getInstance()->queryLimit($sql, $params);
     }
 
-    public function getWhere($field, $value)
+    public function getWhere(array|string $fields, array|string $values): object|false
     {
         $tableName = $this->getTableName();
-        $sql = "SELECT * FROM `{$tableName}` WHERE `{$field}` = :value";
-        return DB::getInstance()->queryOne($sql, ['value' => $value]);
+
+        if (is_array($fields) and is_array($values)) {
+            $params = array_combine($fields, $values);
+            $sql = "SELECT * FROM `{$tableName}` WHERE ";
+            foreach ($params as $key => $value) {
+                $sql .= "`{$key}` = :{$key} AND ";
+            }
+            $sql = substr($sql, 0, -5);
+            $array = DB::getInstance()->queryOne($sql, $params);
+            if ($array) {
+                $class = get_called_class();
+                $obj = new $class;
+                foreach ($array as $key => $value) {
+                    $obj->props["{$key}"]['value'] = $value;
+                    $obj->props["{$key}"]['updated'] = false;
+                }
+                return $obj;
+            }
+            return false;
+        } elseif (!is_array($fields) and !is_array($values)) {
+            $sql = "SELECT * FROM `{$tableName}` WHERE `{$fields}` = :value";
+            $obj = DB::getInstance()->queryOneClass($sql, ['value' => $values], get_called_class());
+            var_dump($obj);
+            return $obj;
+
+        } else {
+            die("Неподходящие входные данные метода getWhere");
+        }
     }
 
     public function getCountWhere($field, $value)
@@ -121,7 +147,7 @@ abstract class DBModel extends Model
 
     public function delete()
     {
-        $params['id'] = $this->props['id']['value'];
+        $params['id'] = $this->id;
         $tableName = $this->getTableName();
         $sql = "DELETE FROM `{$tableName}` WHERE `id` = :id";
 
@@ -131,9 +157,19 @@ abstract class DBModel extends Model
         return $this->rowsAffected;
     }
 
+    public function deleteWhere($field, $value)
+    {
+        $tableName = $this->getTableName();
+        $sql = "DELETE FROM `{$tableName}` WHERE `{$field}` = :value";
+        $this->rowsAffected = DB::getInstance()->executeSql($sql, ['value' => $value]);
+
+//        echo "Записи удалены. Количество затронутых строк: {$this->rowsAffected}";
+        return $this->rowsAffected;
+    }
+
     public function save()
     {
-        if (is_null($this->props['id']['value'])) {
+        if (is_null($this->id)) {
             return $this->insert();
         } else {
             return $this->update();
