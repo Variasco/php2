@@ -1,0 +1,22 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    padding: 16px;
+}
+
+.cart-good {
+    border: 1px solid black;
+    margin: 10px 0;
+    padding: 16px;
+    width: 300px;
+}
+
+.catalog-item {
+    border: 1px solid black;
+    margin: 10px 0;
+    padding: 16px;
+    width: 360px;
+}

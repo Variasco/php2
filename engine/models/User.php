@@ -40,56 +40,59 @@ class User extends DBModel
         return 'users';
     }
 
-    public static function isAuth()
+    public function isAuth()
     {
-        $login = User::getUser();
+        $session = $this->getSession();
+        $login = $session->getParams()['login'] ?? 'guest';
         if ($login != 'guest') {
             return true;
         }
-        if (isset($_COOKIE['hash'])) {
-            $hash_cookie = $_COOKIE['hash'];
-            $result = (new User)->getWhere('hash_cookie', $hash_cookie);
+        $hash = $this->getRequest()->getCookie()['hash'] ?? false;
+        if ($hash) {
+            $result = (new User)->getWhere('hash_cookie', $hash);
             if (!empty($result)) {
-                $_SESSION['login'] = $result['login'];
-                $_SESSION['id'] = $result['id'];
+                $session->setParam('login', $result['login']);
+                $session->setParam('id', $result['id']);
                 return true;
             }
         }
         return false;
     }
 
-    public static function auth($login, $pass)
+    public function auth($login, $pass)
     {
         $result = (new User)->getWhere('login', $login);
         if (!empty($result)) {
             if (password_verify($pass, $result['hash_pass'])) {
-                $_SESSION['login'] = $login;
-                $_SESSION['id'] = $result['id'];
-                $_SESSION['isAdmin'] = $result['is_admin'];
+                $this->getSession()->setParam('login', $login);
+                $this->getSession()->setParam('id', $result['id']);
+                $this->getSession()->setParam('isAdmin', $result['is_admin']);
                 return true;
             }
         }
         return false;
     }
 
-    public static function setCookie($id, $hash)
+    public function setCookie($id, $hash)
     {
         $user = (new User)->getOneAsObject($id);
         $user->hash_cookie = $hash;
         $user->save();
     }
 
-    public static function getUser()
+    public function getUser()
     {
-        if (isset($_SESSION['login'])) {
-            return $_SESSION['login'];
+        $login = $this->getSession()->getParams()['login'] ?? 'guest';
+        if ($login != 'guest') {
+            return $login;
         }
         return 'guest';
     }
 
-    public static function isAdmin()
+    public function isAdmin()
     {
-        if ($_SESSION['isAdmin'] ?? false) {
+        $isAdmin = $this->getSession()->getParams()['isAdmin'] ?? 0;
+        if ($isAdmin) {
             return true;
         }
         return false;

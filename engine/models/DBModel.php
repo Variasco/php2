@@ -61,14 +61,44 @@ abstract class DBModel extends Model
         return DB::getInstance()->queryLimit($sql, $params);
     }
 
-    public function getWhere($field, $value)
+    public function getWhere(array|string $fields, array|string $values): object|false
     {
-        $params = [
-            $field => $value,
-        ];
         $tableName = $this->getTableName();
-        $sql = "SELECT * FROM `{$tableName}` WHERE `{$field}` = :{$field}";
-        return DB::getInstance()->queryOne($sql, $params);
+
+        if (is_array($fields) and is_array($values)) {
+            $params = array_combine($fields, $values);
+            $sql = "SELECT * FROM `{$tableName}` WHERE ";
+            foreach ($params as $key => $value) {
+                $sql .= "`{$key}` = :{$key} AND ";
+            }
+            $sql = substr($sql, 0, -5);
+            $array = DB::getInstance()->queryOne($sql, $params);
+            if ($array) {
+                $class = get_called_class();
+                $obj = new $class;
+                foreach ($array as $key => $value) {
+                    $obj->props["{$key}"]['value'] = $value;
+                    $obj->props["{$key}"]['updated'] = false;
+                }
+                return $obj;
+            }
+            return false;
+        } elseif (!is_array($fields) and !is_array($values)) {
+            $sql = "SELECT * FROM `{$tableName}` WHERE `{$fields}` = :value";
+            $obj = DB::getInstance()->queryOneClass($sql, ['value' => $values], get_called_class());
+            var_dump($obj);
+            return $obj;
+
+        } else {
+            die("Неподходящие входные данные метода getWhere");
+        }
+    }
+
+    public function getCountWhere($field, $value)
+    {
+        $tableName = $this->getTableName();
+        $sql = "SELECT count(id) count FROM `{$tableName}` WHERE `{$field}` = :value";
+        return Db::getInstance()->queryOne($sql, ['value' => $value])['count'];
     }
 
     protected function insert()
@@ -92,9 +122,8 @@ abstract class DBModel extends Model
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
         $this->props['id']['value'] = DB::getInstance()->lastInsertId();
 
-        echo "Запись добавлена. Количество затронутых строк: {$this->rowsAffected}";
-        $this->rowsAffected = 0;
-        return $this;
+//        echo "Запись добавлена. Количество затронутых строк: {$this->rowsAffected}";
+        return $this->rowsAffected;
     }
 
     protected function update()
@@ -113,26 +142,34 @@ abstract class DBModel extends Model
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
 
 //        echo "Запись изменена. Количество затронутых строк: {$this->rowsAffected}";
-        $this->rowsAffected = 0;
-        return $this;
+        return $this->rowsAffected;
     }
 
     public function delete()
     {
-        $params['id'] = $this->props['id']['value'];
+        $params['id'] = $this->id;
         $tableName = $this->getTableName();
         $sql = "DELETE FROM `{$tableName}` WHERE `id` = :id";
 
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
 
-        echo "Запись удалена. Количество затронутых строк: {$this->rowsAffected}";
-        $this->rowsAffected = 0;
-        return $this;
+//        echo "Запись удалена. Количество затронутых строк: {$this->rowsAffected}";
+        return $this->rowsAffected;
+    }
+
+    public function deleteWhere($field, $value)
+    {
+        $tableName = $this->getTableName();
+        $sql = "DELETE FROM `{$tableName}` WHERE `{$field}` = :value";
+        $this->rowsAffected = DB::getInstance()->executeSql($sql, ['value' => $value]);
+
+//        echo "Записи удалены. Количество затронутых строк: {$this->rowsAffected}";
+        return $this->rowsAffected;
     }
 
     public function save()
     {
-        if (is_null($this->props['id']['value'])) {
+        if (is_null($this->id)) {
             return $this->insert();
         } else {
             return $this->update();

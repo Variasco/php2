@@ -71,12 +71,13 @@ class Db
     {
         $stmt = $this->query($sql, $params);
         $stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $className);
-        return $stmt;
+        return $stmt->fetch();
     }
 
     public function queryOne($sql, $params = [])
     {
-        return $this->query($sql, $params)->fetch(\PDO::FETCH_ASSOC);
+        $assoc = $this->query($sql, $params)->fetch(\PDO::FETCH_ASSOC);
+        return $assoc;
     }
 
     public function queryAll($sql, $params = [])

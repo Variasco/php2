@@ -4,8 +4,9 @@
 namespace app\controllers;
 
 
+use app\engine\{Request, Session};
 use app\interfaces\IRender;
-use app\models\User;
+use app\models\{Cart, User};
 
 abstract class MainController
 {
@@ -14,6 +15,9 @@ abstract class MainController
     protected $useLayout = true;
 
     private $render;
+
+    private $request;
+    private $session;
 
     /**
      * MainController constructor.
@@ -24,6 +28,19 @@ abstract class MainController
         $this->render = $render;
     }
 
+    protected function getRequest() {
+        if (is_null($this->request)) {
+            $this->request = new Request();
+        }
+        return $this->request;
+    }
+
+    protected function getSession() {
+        if (is_null($this->session)) {
+            $this->session = new Session();
+        }
+        return $this->session;
+    }
 
     public function runAction($action) {
         $this->action = $action;
@@ -37,11 +54,13 @@ abstract class MainController
 
     protected function render($template, $params = []) {
         if ($this->useLayout) {
+            $user = new User();
             return $this->renderTemplate("layouts/{$this->layout}", [
                 'menu' => $this->renderTemplate('menu', [
-                    'isAuth' => User::isAuth(),
-                    'userName' => User::getUser(),
-                    'isAdmin' => User::isAdmin()
+                    'isAuth' => $user->isAuth(),
+                    'userName' => $user->getUser(),
+                    'isAdmin' => $user->isAdmin(),
+                    'count' => (new Cart())->getCountWhere('session_id', session_id())
                 ]),
                 'content' => $this->renderTemplate($template, $params)
             ]);
@@ -53,16 +72,4 @@ abstract class MainController
     protected function renderTemplate($template, $params = []) {
         return $this->render->renderTemplate($template, $params);
     }
-
-//    protected function renderTemplate($template, $params = []) {
-//        ob_start();
-//        extract($params);
-//        $templatePath = VIEWS_DIR . $template . '.php';
-//        if (file_exists($templatePath)) {
-//            include $templatePath;
-//            return ob_get_clean();
-//        } else {
-//            die('Шаблона не существует');
-//        }
-//    }
 }

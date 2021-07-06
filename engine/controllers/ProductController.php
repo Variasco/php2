@@ -2,12 +2,14 @@
 
 namespace app\controllers;
 
+use app\engine\Request;
 use app\models\Product;
 
 class ProductController extends MainController
 {
     protected function actionIndex() {
-        $page = $_GET['page'] ?? QUANTITY;
+        $request = new Request();
+        $page = $request->getParams()['page'] ?? QUANTITY;
         $catalog = (new Product)->getLimit();
 
         echo $this->render('catalog', [
