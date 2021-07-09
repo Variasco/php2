@@ -3,10 +3,9 @@
 
 namespace app\controllers;
 
-
-use app\engine\Request;
-use app\engine\Session;
-use app\models\{Product, Cart};
+use app\exceptions\ApiException;
+use app\models\entities\Cart;
+use app\models\repositories\{CartRepository, ProductRepository};
 
 class ApiController extends MainController
 {
@@ -15,7 +14,7 @@ class ApiController extends MainController
         $request = $this->getRequest();
         if ($request->getParams()['page'] ?? false) {
             $page = $request->getParams()['page'];
-            $catalog = (new Product())->getLimit($page);
+            $catalog = (new ProductRepository())->getLimit($page);
 
             $response[] = $this->renderTemplate('catalogMore', [
                 'catalog' => $catalog,
@@ -31,18 +30,18 @@ class ApiController extends MainController
         $body = $request->getParams() ?? null;
         if (!empty($body)) {
             $session_id = $this->getSession()->getSessionId();
-            $cart = new Cart();
+            $cart = new CartRepository();
             $item = $cart->getWhere(['product_id', 'session_id'], [$body['id'], $session_id]);
             if ($item) {
                 $item->quantity += 1;
-                $item->save();
+                $cart->save($item);
             } else {
-                (new Cart($body['id'], 1, $session_id))->save();
+                (new CartRepository())->save(new Cart($body['id'], 1, $session_id));
             }
             $response['count'] = $cart->getCountWhere('session_id', $session_id);
             echo json_encode($response);
         } else {
-            die('Пустое тело запроса');
+            throw new ApiException('Пустое тело запроса');
         }
     }
 
@@ -54,23 +53,23 @@ class ApiController extends MainController
         if (!empty($body)) {
             $id = $body['id'];
             $session_id = $this->getSession()->getSessionId();
-            $cart = new Cart();
+            $cart = new CartRepository();
             $item = $cart->getOneAsObject($id);
             if ($item->session_id == $session_id) {
-                $item->delete();
+                $cart->delete($item);
             }
             $response['count'] = $cart->getCountWhere('session_id', $session_id);
             $response['total'] = $cart->getTotalPrice($session_id);
             echo json_encode($response);
         } else {
-            die('Пустое тело запроса');
+            throw new ApiException('Пустое тело запроса');
         }
     }
 
     protected function actionClearCart()
     {
         $session_id = $this->getSession()->getSessionId();
-        $cart = new Cart();
+        $cart = new CartRepository();
         $cart->deleteWhere('session_id', $session_id);
         $response['count'] = $cart->getCountWhere('session_id', $session_id);
         echo json_encode($response);

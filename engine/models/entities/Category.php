@@ -1,12 +1,12 @@
 <?php
 
 
-namespace app\models;
+namespace app\models\entities;
 
 
-class Category extends DBModel
+class Category extends Model
 {
-    protected $props = [
+    public $props = [
         'id' => [
             'updated' => false,
             'value' => null
@@ -20,10 +20,5 @@ class Category extends DBModel
     public function __construct($name = null)
     {
         $this->props['name']['value'] = $name;
-    }
-
-    protected function getTableName()
-    {
-        return 'category';
     }
 }

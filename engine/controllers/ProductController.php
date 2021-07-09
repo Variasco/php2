@@ -3,14 +3,14 @@
 namespace app\controllers;
 
 use app\engine\Request;
-use app\models\Product;
+use app\models\repositories\ProductRepository;
 
 class ProductController extends MainController
 {
     protected function actionIndex() {
-        $request = new Request();
+        $request = $this->getRequest();
         $page = $request->getParams()['page'] ?? QUANTITY;
-        $catalog = (new Product)->getLimit();
+        $catalog = (new ProductRepository())->getLimit();
 
         echo $this->render('catalog', [
             'catalog' => $catalog,
@@ -20,8 +20,9 @@ class ProductController extends MainController
     }
 
     protected function actionCard() {
-        $id = $_GET['id'];
-        $good = (new Product)->getOne($id);
+        $request = $this->getRequest();
+        $id = $request->getParams()['id'];
+        $good = (new ProductRepository)->getOne($id);
         echo $this->render('card', [
             'good' => $good
         ]);

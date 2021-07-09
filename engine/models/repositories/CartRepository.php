@@ -1,39 +1,14 @@
 <?php
 
 
-namespace app\models;
+namespace app\models\repositories;
 
 
 use app\engine\Db;
+use app\models\entities\Cart;
 
-class Cart extends DBModel
+class CartRepository extends Repository
 {
-    protected $props = [
-        'id' => [
-            'updated' => false,
-            'value' => null
-        ],
-        'product_id' => [
-            'updated' => false,
-            'value' => null
-        ],
-        'quantity' => [
-            'updated' => false,
-            'value' => null
-        ],
-        'session_id' => [
-            'updated' => false,
-            'value' => null
-        ],
-    ];
-
-    public function __construct($product_id = null, $quantity = null, $session_id = null)
-    {
-        $this->props['product_id']['value'] = $product_id;
-        $this->props['quantity']['value'] = $quantity;
-        $this->props['session_id']['value'] = $session_id;
-    }
-
     public function getCart($session_id)
     {
         $sql = "SELECT `p`.`id` product_id, `c`.`id` cart_id, `p`.`name` name, `p`.`price` price, `c`.`quantity` quantity FROM 
@@ -51,6 +26,11 @@ class Cart extends DBModel
     public function getQuantity($product_id, $session_id) {
         $sql = "SELECT `quantity` FROM `cart` WHERE `product_id` = :product_id AND `session_id` = :session_id";
         return Db::getInstance()->queryOne($sql, ['product_id' => $product_id, 'session_id' => $session_id]);
+    }
+
+    protected function getEntityClass()
+    {
+        return Cart::class;
     }
 
     protected function getTableName()

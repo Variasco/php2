@@ -4,9 +4,10 @@
 namespace app\controllers;
 
 
+use app\exceptions\RequestException;
+use app\models\repositories\{CartRepository, UserRepository};
 use app\engine\{Request, Session};
 use app\interfaces\IRender;
-use app\models\{Cart, User};
 
 abstract class MainController
 {
@@ -48,19 +49,19 @@ abstract class MainController
         if (method_exists($this, $method)) {
             $this->$method();
         } else {
-            die("Экшен не существует");
+            throw new RequestException("Экшен не существует");
         }
     }
 
     protected function render($template, $params = []) {
         if ($this->useLayout) {
-            $user = new User();
+            $user = new UserRepository();
             return $this->renderTemplate("layouts/{$this->layout}", [
                 'menu' => $this->renderTemplate('menu', [
                     'isAuth' => $user->isAuth(),
                     'userName' => $user->getUser(),
                     'isAdmin' => $user->isAdmin(),
-                    'count' => (new Cart())->getCountWhere('session_id', session_id())
+                    'count' => (new CartRepository())->getCountWhere('session_id', $this->getSession()->getSessionId())
                 ]),
                 'content' => $this->renderTemplate($template, $params)
             ]);

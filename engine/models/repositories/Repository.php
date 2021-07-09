@@ -1,15 +1,36 @@
 <?php
 
 
-namespace app\models;
+namespace app\models\repositories;
 
-use app\engine\Db;
+use app\models\entities\Model;
+use app\engine\{Request, Session, Db};
 
-abstract class DBModel extends Model
+abstract class Repository
 {
     abstract protected function getTableName();
+    abstract protected function getEntityClass();
 
     protected int $rowsAffected = 0;
+
+    private $request;
+    private $session;
+
+    protected function getRequest()
+    {
+        if (is_null($this->request)) {
+            $this->request = new Request();
+        }
+        return $this->request;
+    }
+
+    protected function getSession()
+    {
+        if (is_null($this->session)) {
+            $this->session = new Session();
+        }
+        return $this->session;
+    }
 
     public function getOne($id)
     {
@@ -22,15 +43,14 @@ abstract class DBModel extends Model
     {
         $tableName = $this->getTableName();
         $sql = "SELECT * FROM {$tableName} WHERE id = :id";
-        $class = get_called_class();
+        $class = $this->getEntityClass();
         // $obj2 = DB::getInstance()->queryOneClass($sql, ['id' => $id] ,$class);
         // Если сделать так, и заполнить объект через магический set, то всем полям 'updated' выставится true
         $array = DB::getInstance()->queryOne($sql, ['id' => $id]);
 
         $obj = new $class;
         foreach ($array as $key => $value) {
-            $obj->props["{$key}"]['value'] = $value;
-            $obj->props["{$key}"]['updated'] = false;
+            $obj->props[$key]['value'] = $value;
         }
 
         return $obj;
@@ -40,7 +60,7 @@ abstract class DBModel extends Model
     {
         $tableName = $this->getTableName();
         $sql = "SELECT * FROM {$tableName} WHERE id = :id";
-        return DB::getInstance()->queryOneClass($sql, ['id' => $id], get_called_class());
+        return DB::getInstance()->queryOneClass($sql, ['id' => $id], $this->getEntityClass());
     }
 
     public function getAll()
@@ -57,13 +77,14 @@ abstract class DBModel extends Model
             'quantity' => QUANTITY,
         ];
         $tableName = $this->getTableName();
-        $sql = "SELECT * FROM `{$tableName}`  LIMIT :from, :quantity";
+        $sql = "SELECT * FROM `{$tableName}` LIMIT :from, :quantity";
         return DB::getInstance()->queryLimit($sql, $params);
     }
 
-    public function getWhere(array|string $fields, array|string $values): object|false
+    public function getWhere(array|string $fields, array|string $values)
     {
         $tableName = $this->getTableName();
+        $class = $this->getEntityClass();
 
         if (is_array($fields) and is_array($values)) {
             $params = array_combine($fields, $values);
@@ -72,25 +93,14 @@ abstract class DBModel extends Model
                 $sql .= "`{$key}` = :{$key} AND ";
             }
             $sql = substr($sql, 0, -5);
-            $array = DB::getInstance()->queryOne($sql, $params);
-            if ($array) {
-                $class = get_called_class();
-                $obj = new $class;
-                foreach ($array as $key => $value) {
-                    $obj->props["{$key}"]['value'] = $value;
-                    $obj->props["{$key}"]['updated'] = false;
-                }
-                return $obj;
-            }
-            return false;
-        } elseif (!is_array($fields) and !is_array($values)) {
+            return DB::getInstance()->queryOneClass($sql, $params, $class);
+        }
+        elseif (!is_array($fields) and !is_array($values)) {
             $sql = "SELECT * FROM `{$tableName}` WHERE `{$fields}` = :value";
-            $obj = DB::getInstance()->queryOneClass($sql, ['value' => $values], get_called_class());
-            var_dump($obj);
-            return $obj;
+            return DB::getInstance()->queryOneClass($sql, ['value' => $values], $class);
 
         } else {
-            die("Неподходящие входные данные метода getWhere");
+            throw new \Exception("Неподходящие входные данные метода getWhere");
         }
     }
 
@@ -101,13 +111,13 @@ abstract class DBModel extends Model
         return Db::getInstance()->queryOne($sql, ['value' => $value])['count'];
     }
 
-    protected function insert()
+    protected function insert(Model $entity)
     {
-        $fields = null;
-        $values = null;
-        $params = null;
+        $fields = '';
+        $values = '';
+        $params = [];
         $tableName = $this->getTableName();
-        foreach ($this->props as $key => $value) {
+        foreach ($entity->props as $key => $value) {
             if (is_null($value['value'])) continue;
             $params[$key] = $value['value'];
             $fields .= "`{$key}`, ";
@@ -120,18 +130,18 @@ abstract class DBModel extends Model
         $sql = "INSERT INTO `{$tableName}` ({$fields}) VALUES ({$values})";
 
         $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
-        $this->props['id']['value'] = DB::getInstance()->lastInsertId();
+        $entity->props['id']['value'] = DB::getInstance()->lastInsertId();
 
 //        echo "Запись добавлена. Количество затронутых строк: {$this->rowsAffected}";
         return $this->rowsAffected;
     }
 
-    protected function update()
+    protected function update(Model $entity)
     {
-        $params["id"] = $this->props['id']['value'];
+        $params["id"] = $entity->id;
         $tableName = $this->getTableName();
         $sql = "UPDATE `{$tableName}` SET ";
-        foreach ($this->props as $key => $value) {
+        foreach ($entity->props as $key => $value) {
             if (!$value['updated']) continue;
             $params["{$key}"] = $value['value'];
             $sql .= "`{$key}` = :{$key}, ";
@@ -145,9 +155,9 @@ abstract class DBModel extends Model
         return $this->rowsAffected;
     }
 
-    public function delete()
+    public function delete(Model $entity)
     {
-        $params['id'] = $this->id;
+        $params['id'] = $entity->id;
         $tableName = $this->getTableName();
         $sql = "DELETE FROM `{$tableName}` WHERE `id` = :id";
 
@@ -167,12 +177,12 @@ abstract class DBModel extends Model
         return $this->rowsAffected;
     }
 
-    public function save()
+    public function save(Model $entity)
     {
-        if (is_null($this->id)) {
-            return $this->insert();
+        if (is_null($entity->id)) {
+            return $this->insert($entity);
         } else {
-            return $this->update();
+            return $this->update($entity);
         }
     }
 }
