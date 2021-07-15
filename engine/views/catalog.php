@@ -9,7 +9,6 @@
         </div>
     <?php endforeach; ?>
 </section>
-<button data-page="<?= $page ?>" id="more">Еще</button>
 
-<script defer src="js/paginator.js?<?= uniqid(); ?>"></script>
-<script defer src="js/addToCart.js?<?= uniqid(); ?>"></script>
+<script defer src="/js/paginator.js?<?= uniqid(); ?>"></script>
+<script defer src="/js/addToCart.js?<?= uniqid(); ?>"></script>

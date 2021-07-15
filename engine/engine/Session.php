@@ -13,7 +13,6 @@ class Session
     {
         $this->session_id = session_id();
         $this->params = $_SESSION;
-        // есть ещё session_regenerate_id() и session_destroy(), не знаю, стоит ли сюда их вставлять
     }
 
     /**
@@ -22,6 +21,22 @@ class Session
     public function getSessionId(): string
     {
         return $this->session_id;
+    }
+
+    /**
+     * @return void
+     */
+    public function regenerateId(): void
+    {
+        session_regenerate_id();
+    }
+
+    /**
+     * @return void
+     */
+    public function destroy(): void
+    {
+        session_destroy();
     }
 
     /**

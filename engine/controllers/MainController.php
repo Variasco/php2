@@ -5,8 +5,7 @@ namespace app\controllers;
 
 
 use app\exceptions\RequestException;
-use app\models\repositories\{CartRepository, UserRepository};
-use app\engine\{Request, Session};
+use app\engine\{App};
 use app\interfaces\IRender;
 
 abstract class MainController
@@ -17,9 +16,6 @@ abstract class MainController
 
     private $render;
 
-    private $request;
-    private $session;
-
     /**
      * MainController constructor.
      * @param $render
@@ -27,20 +23,6 @@ abstract class MainController
     public function __construct(IRender $render)
     {
         $this->render = $render;
-    }
-
-    protected function getRequest() {
-        if (is_null($this->request)) {
-            $this->request = new Request();
-        }
-        return $this->request;
-    }
-
-    protected function getSession() {
-        if (is_null($this->session)) {
-            $this->session = new Session();
-        }
-        return $this->session;
     }
 
     public function runAction($action) {
@@ -55,13 +37,13 @@ abstract class MainController
 
     protected function render($template, $params = []) {
         if ($this->useLayout) {
-            $user = new UserRepository();
+            $user = App::call()->userRepository;
             return $this->renderTemplate("layouts/{$this->layout}", [
                 'menu' => $this->renderTemplate('menu', [
                     'isAuth' => $user->isAuth(),
                     'userName' => $user->getUser(),
                     'isAdmin' => $user->isAdmin(),
-                    'count' => (new CartRepository())->getCountWhere('session_id', $this->getSession()->getSessionId())
+                    'count' => App::call()->cartRepository->getCountWhere('session_id', App::call()->session->getSessionId())
                 ]),
                 'content' => $this->renderTemplate($template, $params)
             ]);

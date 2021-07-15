@@ -2,15 +2,13 @@
 
 namespace app\controllers;
 
-use app\engine\Request;
-use app\models\repositories\ProductRepository;
+use app\engine\{App, Request};
 
 class ProductController extends MainController
 {
     protected function actionIndex() {
-        $request = $this->getRequest();
-        $page = $request->getParams()['page'] ?? QUANTITY;
-        $catalog = (new ProductRepository())->getLimit();
+        $page = App::call()->request->getParams()['page'] ?? App::call()->config['quantity'];
+        $catalog = App::call()->productRepository->getLimit();
 
         echo $this->render('catalog', [
             'catalog' => $catalog,
@@ -20,9 +18,8 @@ class ProductController extends MainController
     }
 
     protected function actionCard() {
-        $request = $this->getRequest();
-        $id = $request->getParams()['id'];
-        $good = (new ProductRepository)->getOne($id);
+        $id = App::call()->request->getParams()['id'];
+        $good = App::call()->productRepository->getOne($id);
         echo $this->render('card', [
             'good' => $good
         ]);

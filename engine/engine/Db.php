@@ -2,22 +2,22 @@
 
 namespace app\engine;
 
-use app\traits\TSingleton;
 
 class Db
 {
-    protected $config = [
-        'driver' => 'mysql',
-        'host' => 'localhost',
-        'login' => 'root',
-        'password' => 'root',
-        'database' => 'shop',
-        'charset' => 'utf8'
-    ];
-
-    use TSingleton;
+    protected $config;
 
     protected $connection = null;
+
+    public function __construct($driver = null, $host = null, $login = null, $password = null, $database = null, $charset = "utf8")
+    {
+        $this->config['driver'] = $driver;
+        $this->config['host'] = $host;
+        $this->config['login'] = $login;
+        $this->config['password'] = $password;
+        $this->config['database'] = $database;
+        $this->config['charset'] = $charset;
+    }
 
     protected function getConnection()
     {
@@ -71,22 +71,12 @@ class Db
     {
         $stmt = $this->query($sql, $params);
         $stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $className);
-        $obj = $stmt->fetch();
-
-        if (!$obj) {
-            throw new \Exception('Не найдено!', 404);
-        }
-        return $obj;
+        return $stmt->fetch();
     }
 
     public function queryOne($sql, $params = [])
     {
-        $assoc = $this->query($sql, $params)->fetch(\PDO::FETCH_ASSOC);
-
-        if (!$assoc) {
-            throw new \Exception('Не найдено!', 404);
-        }
-        return $assoc;
+        return $this->query($sql, $params)->fetch(\PDO::FETCH_ASSOC);
     }
 
     public function queryAll($sql, $params = [])

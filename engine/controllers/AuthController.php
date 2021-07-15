@@ -3,20 +3,21 @@
 
 namespace app\controllers;
 
-use app\exceptions\AuthException;
-use app\models\repositories\UserRepository;
+use app\engine\{App};
+use app\exceptions\{AuthException};
 
 class AuthController extends MainController
 {
     protected function actionLogin()
     {
-        $login = $this->getRequest()->getParams()['login'] ?? null;
-        $pass = $this->getRequest()->getParams()['pass'] ?? null;
-        $user = new UserRepository();
+        $request = App::call()->request;
+        $login = $request->getParams()['login'] ?? null;
+        $pass = $request->getParams()['pass'] ?? null;
+        $user = App::call()->userRepository;
         if ($user->auth($login, $pass)) {
-            if ($this->getRequest()->getParams()['save'] ?? false) {
+            if ($request->getParams()['save'] ?? false) {
                 $hash = uniqid(rand(), true);
-                $id = $this->getSession()->getParams()['id'] ?? null;
+                $id = App::call()->session->getParams()['id'] ?? null;
                 if (!is_null($id)) {
                     $user->setCookie($id, $hash);
                     setcookie("hash", $hash, time() + 24 * 3600, "/");
@@ -32,8 +33,8 @@ class AuthController extends MainController
     protected function actionLogout()
     {
         setcookie("hash", "", time() - 1, "/");
-        session_regenerate_id();
-        session_destroy();
+        App::call()->session->regenerateId();
+        App::call()->session->destroy();
         header("location: {$_SERVER['HTTP_REFERER']}");
         die();
     }
