@@ -7,7 +7,7 @@ use app\models\entities\Product;
 
 class ProductRepository extends Repository
 {
-    protected function getEntityClass()
+    public function getEntityClass()
     {
         return Product::class;
     }

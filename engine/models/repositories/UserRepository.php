@@ -3,11 +3,12 @@
 
 namespace app\models\repositories;
 
+use app\engine\App;
 use app\models\entities\User;
 
 class UserRepository extends Repository
 {
-    protected function getEntityClass()
+    public function getEntityClass()
     {
         return User::class;
     }
@@ -19,12 +20,12 @@ class UserRepository extends Repository
 
     public function isAuth()
     {
-        $session = $this->getSession();
+        $session = App::call()->session;
         $login = $session->getParams()['login'] ?? 'guest';
         if ($login != 'guest') {
             return true;
         }
-        $hash = $this->getRequest()->getCookie()['hash'] ?? false;
+        $hash = App::call()->request->getCookie()['hash'] ?? false;
         if ($hash) {
             $result = $this->getWhere('hash_cookie', $hash);
             if (!empty($result)) {
@@ -41,7 +42,7 @@ class UserRepository extends Repository
         $result = $this->getWhere('login', $login);
         if (!empty($result)) {
             if (password_verify($pass, $result->hash_pass)) {
-                $session = $this->getSession();
+                $session = App::call()->session;
                 $session->setParam('login', $login);
                 $session->setParam('id', $result->id);
                 $session->setParam('isAdmin', $result->is_admin);
@@ -60,16 +61,13 @@ class UserRepository extends Repository
 
     public function getUser()
     {
-        $login = $this->getSession()->getParams()['login'] ?? 'guest';
-        if ($login != 'guest') {
-            return $login;
-        }
-        return 'guest';
+        $login = App::call()->session->getParams()['login'] ?? 'guest';
+        return $login;
     }
 
     public function isAdmin()
     {
-        $isAdmin = $this->getSession()->getParams()['isAdmin'] ?? 0;
+        $isAdmin = App::call()->session->getParams()['isAdmin'] ?? 0;
         if ($isAdmin) {
             return true;
         }

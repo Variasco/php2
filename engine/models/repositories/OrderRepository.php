@@ -7,7 +7,7 @@ use app\models\entities\Order;
 
 class OrderRepository extends Repository
 {
-    protected function getEntityClass()
+    public function getEntityClass()
     {
         return Order::class;
     }

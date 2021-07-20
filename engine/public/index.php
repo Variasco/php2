@@ -1,27 +1,15 @@
 <?php
 session_start();
 
+use app\engine\App;
 use app\exceptions\{RequestException, ApiException, AuthException};
-use app\engine\{Render, Request, Session, TwigRender};
-use app\models\entities\{Product, User, Order, Cart, Category};
 
-include "../config/config.php";
+$config = include "../config/config.php";
 include '../vendor/autoload.php';
 
 try {
-    $request = new Request;
+    App::call()->run($config);
 
-    $controllerName = $request->getControllerName() ?: 'index';
-    $actionName = $request->getActionName() ?? 'index';
-
-    $controllerClass = CONTROLLER_NAMESPACE . ucfirst($controllerName) . "Controller";
-
-    if (class_exists($controllerClass)) {
-        $controller = new $controllerClass(new Render());
-        $controller->runAction($actionName);
-    } else {
-        throw new RequestException("Контроллер не существует");
-    }
 } catch (PDOException $e) {
     echo "PDOException Error! {$e->getMessage()}";
 } catch (RequestException $e) {
@@ -33,3 +21,11 @@ try {
 } catch (Exception $e) {
     echo "Exception Error! {$e->getMessage()}";
 }
+
+
+// Добавлен сервисный класс App, как единая точка входа
+// Добавлено хранилище Storage для создания и хранения всех экземпляров классов
+// Созданы миграции и сиды для базы данных
+// Добавлена возможность оформления заказа из корзины
+// Добавлен функционал в админку. Можно увидеть все заказы и просмотреть каждый в деталях, а так же изменить его статус
+// Реализована ассинхронная автоматическая подргузка каталога. Добавлена блокировка в API против новых запросов, когда каталог исчерпал себя

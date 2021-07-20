@@ -6,4 +6,4 @@
     <button data-id="<?=$good['id']?>" class="buy">Купить</button>
 </div>
 
-<script defer src="js/addToCart.js?<?= uniqid(); ?>"></script>
+<script defer src="/js/addToCart.js?<?= uniqid(); ?>"></script>

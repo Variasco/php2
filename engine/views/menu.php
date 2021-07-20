@@ -16,4 +16,4 @@
 <?php endif; ?>
 <br>
 
-<script defer src="js/sendRequest.js?<?= uniqid(); ?>"></script>
+<script defer src="/js/sendRequest.js?<?= uniqid(); ?>"></script>

@@ -4,39 +4,20 @@
 namespace app\models\repositories;
 
 use app\models\entities\Model;
-use app\engine\{Request, Session, Db};
+use app\engine\{App};
 
 abstract class Repository
 {
     abstract protected function getTableName();
-    abstract protected function getEntityClass();
+    abstract public function getEntityClass();
 
     protected int $rowsAffected = 0;
-
-    private $request;
-    private $session;
-
-    protected function getRequest()
-    {
-        if (is_null($this->request)) {
-            $this->request = new Request();
-        }
-        return $this->request;
-    }
-
-    protected function getSession()
-    {
-        if (is_null($this->session)) {
-            $this->session = new Session();
-        }
-        return $this->session;
-    }
 
     public function getOne($id)
     {
         $tableName = $this->getTableName();
         $sql = "SELECT * FROM {$tableName} WHERE id = :id";
-        return DB::getInstance()->queryOne($sql, ['id' => $id]);
+        return App::call()->db->queryOne($sql, ['id' => $id]);
     }
 
     public function getOneAsObject($id)
@@ -46,7 +27,7 @@ abstract class Repository
         $class = $this->getEntityClass();
         // $obj2 = DB::getInstance()->queryOneClass($sql, ['id' => $id] ,$class);
         // Если сделать так, и заполнить объект через магический set, то всем полям 'updated' выставится true
-        $array = DB::getInstance()->queryOne($sql, ['id' => $id]);
+        $array = App::call()->db->queryOne($sql, ['id' => $id]);
 
         $obj = new $class;
         foreach ($array as $key => $value) {
@@ -60,25 +41,25 @@ abstract class Repository
     {
         $tableName = $this->getTableName();
         $sql = "SELECT * FROM {$tableName} WHERE id = :id";
-        return DB::getInstance()->queryOneClass($sql, ['id' => $id], $this->getEntityClass());
+        return App::call()->db->queryOneClass($sql, ['id' => $id], $this->getEntityClass());
     }
 
     public function getAll()
     {
         $tableName = $this->getTableName();
         $sql = "SELECT * FROM {$tableName}";
-        return DB::getInstance()->queryAll($sql);
+        return App::call()->db->queryAll($sql);
     }
 
     public function getLimit($page = 0)
     {
         $params = [
             'from' => $page,
-            'quantity' => QUANTITY,
+            'quantity' => App::call()->config['quantity'],
         ];
         $tableName = $this->getTableName();
         $sql = "SELECT * FROM `{$tableName}` LIMIT :from, :quantity";
-        return DB::getInstance()->queryLimit($sql, $params);
+        return App::call()->db->queryLimit($sql, $params);
     }
 
     public function getWhere(array|string $fields, array|string $values)
@@ -93,11 +74,11 @@ abstract class Repository
                 $sql .= "`{$key}` = :{$key} AND ";
             }
             $sql = substr($sql, 0, -5);
-            return DB::getInstance()->queryOneClass($sql, $params, $class);
+            return App::call()->db->queryOneClass($sql, $params, $class);
         }
         elseif (!is_array($fields) and !is_array($values)) {
             $sql = "SELECT * FROM `{$tableName}` WHERE `{$fields}` = :value";
-            return DB::getInstance()->queryOneClass($sql, ['value' => $values], $class);
+            return App::call()->db->queryOneClass($sql, ['value' => $values], $class);
 
         } else {
             throw new \Exception("Неподходящие входные данные метода getWhere");
@@ -108,7 +89,7 @@ abstract class Repository
     {
         $tableName = $this->getTableName();
         $sql = "SELECT count(id) count FROM `{$tableName}` WHERE `{$field}` = :value";
-        return Db::getInstance()->queryOne($sql, ['value' => $value])['count'];
+        return App::call()->db->queryOne($sql, ['value' => $value])['count'];
     }
 
     protected function insert(Model $entity)
@@ -129,8 +110,8 @@ abstract class Repository
 
         $sql = "INSERT INTO `{$tableName}` ({$fields}) VALUES ({$values})";
 
-        $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
-        $entity->props['id']['value'] = DB::getInstance()->lastInsertId();
+        $this->rowsAffected = App::call()->db->executeSql($sql, $params);
+        $entity->props['id']['value'] = App::call()->db->lastInsertId();
 
 //        echo "Запись добавлена. Количество затронутых строк: {$this->rowsAffected}";
         return $this->rowsAffected;
@@ -149,7 +130,7 @@ abstract class Repository
         $sql = substr($sql, 0, -2);
         $sql .= " WHERE `id` = :id";
 
-        $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
+        $this->rowsAffected = App::call()->db->executeSql($sql, $params);
 
 //        echo "Запись изменена. Количество затронутых строк: {$this->rowsAffected}";
         return $this->rowsAffected;
@@ -161,7 +142,7 @@ abstract class Repository
         $tableName = $this->getTableName();
         $sql = "DELETE FROM `{$tableName}` WHERE `id` = :id";
 
-        $this->rowsAffected = DB::getInstance()->executeSql($sql, $params);
+        $this->rowsAffected = App::call()->db->executeSql($sql, $params);
 
 //        echo "Запись удалена. Количество затронутых строк: {$this->rowsAffected}";
         return $this->rowsAffected;
@@ -171,7 +152,7 @@ abstract class Repository
     {
         $tableName = $this->getTableName();
         $sql = "DELETE FROM `{$tableName}` WHERE `{$field}` = :value";
-        $this->rowsAffected = DB::getInstance()->executeSql($sql, ['value' => $value]);
+        $this->rowsAffected = App::call()->db->executeSql($sql, ['value' => $value]);
 
 //        echo "Записи удалены. Количество затронутых строк: {$this->rowsAffected}";
         return $this->rowsAffected;

@@ -7,7 +7,7 @@ use app\models\entities\Category;
 
 class CategoryRepository extends Repository
 {
-    protected function getEntityClass()
+    public function getEntityClass()
     {
         return Category::class;
     }

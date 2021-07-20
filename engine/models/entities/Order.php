@@ -33,7 +33,7 @@ class Order extends Model
         ],
     ];
 
-    public function __construct($name = null, $phone = null, $status = null, $session_id = null, $created_at = null)
+    public function __construct($name = null, $phone = null, $session_id = null, $status = null, $created_at = null)
     {
         $this->props['name']['value'] = $name;
         $this->props['phone']['value'] = $phone;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1:3306
--- Время создания: Июн 29 2021 г., 18:50
+-- Время создания: Июл 13 2021 г., 16:40
 -- Версия сервера: 8.0.19
 -- Версия PHP: 8.0.1
 
@@ -33,6 +33,14 @@ CREATE TABLE `cart` (
   `quantity` int UNSIGNED NOT NULL DEFAULT '1',
   `session_id` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Дамп данных таблицы `cart`
+--
+
+INSERT INTO `cart` (`id`, `product_id`, `quantity`, `session_id`) VALUES
+(2, 1, 1, 'ih7sb828mr0qjetlp807ci72iel19ec4'),
+(30, 1, 2, 'p6cof35j72mmu4hjsugnf30vks76hibh');
 
 -- --------------------------------------------------------
 
@@ -113,7 +121,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `login`, `hash_pass`, `is_admin`, `hash_cookie`) VALUES
-(1, 'admin', '$2y$10$11xacmJ4Gz1c0D172YH2cuLhPDVmxN4H/QDbe1E0kl4aSEJrY2ue.', 1, '139120029660da5d44e7fa26.94293867');
+(1, 'admin', '$2y$10$11xacmJ4Gz1c0D172YH2cuLhPDVmxN4H/QDbe1E0kl4aSEJrY2ue.', 1, '35985930960e6eaa25f4f05.61068279');
 
 --
 -- Индексы сохранённых таблиц
@@ -124,8 +132,8 @@ INSERT INTO `users` (`id`, `login`, `hash_pass`, `is_admin`, `hash_cookie`) VALU
 --
 ALTER TABLE `cart`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `session_id` (`session_id`),
-  ADD KEY `product_id` (`product_id`);
+  ADD KEY `product_id` (`product_id`),
+  ADD KEY `session_id` (`session_id`);
 
 --
 -- Индексы таблицы `category`
@@ -166,7 +174,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT для таблицы `category`
