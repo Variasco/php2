@@ -3,14 +3,13 @@
 
 namespace app\controllers;
 
-use app\models\Cart;
-use app\models\Product;
+use app\models\repositories\CartRepository;
 
 class CartController extends MainController
 {
     protected function actionIndex() {
         $session_id = $this->getSession()->getSessionId();
-        $cart = (new Cart);
+        $cart = (new CartRepository());
         $cartGoods = $cart->getCart($session_id);
         $total = $cart->getTotalPrice($session_id);
 

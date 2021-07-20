@@ -3,9 +3,8 @@
 
 namespace app\controllers;
 
-
-use app\engine\Request;
-use app\models\User;
+use app\exceptions\AuthException;
+use app\models\repositories\UserRepository;
 
 class AuthController extends MainController
 {
@@ -13,7 +12,7 @@ class AuthController extends MainController
     {
         $login = $this->getRequest()->getParams()['login'] ?? null;
         $pass = $this->getRequest()->getParams()['pass'] ?? null;
-        $user = new User();
+        $user = new UserRepository();
         if ($user->auth($login, $pass)) {
             if ($this->getRequest()->getParams()['save'] ?? false) {
                 $hash = uniqid(rand(), true);
@@ -26,7 +25,7 @@ class AuthController extends MainController
             header("location: {$_SERVER['HTTP_REFERER']}");
             die();
         } else {
-            die("Связка логин-пароль не существует");
+            throw new AuthException("Связка логин-пароль не существует");
         }
     }
 

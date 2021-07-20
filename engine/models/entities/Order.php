@@ -1,12 +1,12 @@
 <?php
 
 
-namespace app\models;
+namespace app\models\entities;
 
 
-class Order extends DBModel
+class Order extends Model
 {
-    protected $props = [
+    public $props = [
         'id' => [
             'updated' => false,
             'value' => null
@@ -40,10 +40,5 @@ class Order extends DBModel
         $this->props['status']['value'] = $status;
         $this->props['session_id']['value'] = $session_id;
         $this->props['created_at']['value'] = $created_at;
-    }
-
-    protected function getTableName()
-    {
-        return 'orders';
     }
 }

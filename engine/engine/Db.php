@@ -71,12 +71,21 @@ class Db
     {
         $stmt = $this->query($sql, $params);
         $stmt->setFetchMode(\PDO::FETCH_CLASS | \PDO::FETCH_PROPS_LATE, $className);
-        return $stmt->fetch();
+        $obj = $stmt->fetch();
+
+        if (!$obj) {
+            throw new \Exception('Не найдено!', 404);
+        }
+        return $obj;
     }
 
     public function queryOne($sql, $params = [])
     {
         $assoc = $this->query($sql, $params)->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$assoc) {
+            throw new \Exception('Не найдено!', 404);
+        }
         return $assoc;
     }
 

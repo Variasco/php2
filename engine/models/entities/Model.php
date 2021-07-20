@@ -1,32 +1,10 @@
 <?php
 
-namespace app\models;
+namespace app\models\entities;
 
-use app\engine\Request;
-use app\engine\Session;
-use app\interfaces\IModel;
 
-abstract class Model implements IModel
+abstract class Model
 {
-    private $request;
-    private $session;
-
-    protected function getRequest()
-    {
-        if (is_null($this->request)) {
-            $this->request = new Request();
-        }
-        return $this->request;
-    }
-
-    protected function getSession()
-    {
-        if (is_null($this->session)) {
-            $this->session = new Session();
-        }
-        return $this->session;
-    }
-
     public function __set($name, $value)
     {
         if (array_key_exists($name, $this->props)) {

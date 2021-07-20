@@ -1,12 +1,12 @@
 <?php
 
 
-namespace app\models;
+namespace app\models\entities;
 
 
-class Product extends DBModel
+class Product extends Model
 {
-    protected $props = [
+    public $props = [
         'id' => [
             'updated' => false,
             'value' => null
@@ -40,10 +40,5 @@ class Product extends DBModel
         $this->props['description']['value'] = $description;
         $this->props['picture']['value'] = $picture;
         $this->props['category_id']['value'] = $category_id;
-    }
-
-    protected function getTableName()
-    {
-        return 'products';
     }
 }
